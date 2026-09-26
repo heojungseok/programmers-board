@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/board_test_db
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate:
+        generate_statistics: true
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+    show-sql: true
+
+
+logging:
+  level:
+    com.board: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    org.hibernate.orm.jdbc.extract: TRACE
+    org.springframework.transaction.interceptor: TRACE
+
+jwt:
+  secret: xTi+80EJLGn+c2HGnxNKFLVmFTCIH0Qa6HOuoMYGEus=
+  expiration: 3600000
