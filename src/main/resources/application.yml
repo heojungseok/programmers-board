@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: programmers-board
+  datasource:
+    url: jdbc:postgresql://localhost:5432/board-db
+    username: sa
+    password:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        generate_statistics: true
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+    show-sql: true
+  config:
+    import: optional:file:.env[.properties]
+
+server:
+  port: 8890
+
+logging:
+  level:
+    com.board: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    org.hibernate.orm.jdbc.extract: TRACE
+    org.springframework.transaction.interceptor: TRACE
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 3600000
