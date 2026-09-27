@@ -9,8 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import tools.jackson.databind.JsonNode;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +50,7 @@ class CommentApiTest extends IntegrationTest {
         ResponseEntity<JsonNode> response = comments(postId);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(contentsOf(response.getBody().get("data")))
+        assertThat(TestFixture.valuesOf(response.getBody().get("data"), "content"))
                 .containsExactly("먼저 쓴 댓글", "나중에 쓴 댓글");
     }
 
@@ -80,7 +78,7 @@ class CommentApiTest extends IntegrationTest {
         ResponseEntity<JsonNode> response = updateComment(token, commentId, "수정 후 댓글");
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(contentsOf(comments(postId).getBody().get("data")))
+        assertThat(TestFixture.valuesOf(comments(postId).getBody().get("data"), "content"))
                 .containsExactly("수정 후 댓글");
     }
 
@@ -93,7 +91,7 @@ class CommentApiTest extends IntegrationTest {
 
         assertThat(deleteComment(token, removedId).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
-        assertThat(contentsOf(comments(postId).getBody().get("data"))).containsExactly("남을 댓글");
+        assertThat(TestFixture.valuesOf(comments(postId).getBody().get("data"), "content")).containsExactly("남을 댓글");
         assertThat(deleteComment(token, removedId).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
@@ -136,7 +134,7 @@ class CommentApiTest extends IntegrationTest {
         ResponseEntity<JsonNode> response =
                 testRestTemplate.getForEntity("/api/posts?page=0&size=50", JsonNode.class);
 
-        JsonNode item = itemByTitle(response.getBody().get("data").get("content"), "댓글 수 확인용 글");
+        JsonNode item = TestFixture.itemBy(response.getBody().get("data").get("content"), "title", "댓글 수 확인용 글");
         assertThat(item.get("commentCount").asLong()).isEqualTo(2);
     }
 
@@ -161,20 +159,4 @@ class CommentApiTest extends IntegrationTest {
         return testRestTemplate.getForEntity("/api/posts/" + postId + "/comments", JsonNode.class);
     }
 
-    private List<String> contentsOf(JsonNode data) {
-        List<String> contents = new ArrayList<>();
-        for (int i = 0; i < data.size(); i++) {
-            contents.add(data.get(i).get("content").asString());
-        }
-        return contents;
-    }
-
-    private JsonNode itemByTitle(JsonNode content, String title) {
-        for (int i = 0; i < content.size(); i++) {
-            if (title.equals(content.get(i).get("title").asString())) {
-                return content.get(i);
-            }
-        }
-        throw new AssertionError("목록에 없는 제목: " + title);
-    }
 }

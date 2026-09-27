@@ -21,7 +21,6 @@ import tools.jackson.databind.JsonNode;
 
 import java.time.Instant;
 import java.util.Date;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -106,7 +105,7 @@ class PostApiTest extends IntegrationTest {
         JsonNode data = response.getBody().get("data");
         assertThat(data.get("totalElements").asLong()).isGreaterThanOrEqualTo(2);
 
-        List<String> titles = titlesOf(data.get("content"));
+        List<String> titles = TestFixture.valuesOf(data.get("content"), "title");
         assertThat(titles.indexOf("나중에 쓴 글")).isLessThan(titles.indexOf("먼저 쓴 글"));
     }
 
@@ -117,7 +116,7 @@ class PostApiTest extends IntegrationTest {
 
         ResponseEntity<JsonNode> response = testRestTemplate.getForEntity("/api/posts?page=0&size=50", JsonNode.class);
 
-        JsonNode item = itemByTitle(response.getBody().get("data").get("content"), "항목 확인용 글");
+        JsonNode item = TestFixture.itemBy(response.getBody().get("data").get("content"), "title", "항목 확인용 글");
         assertThat(item.get("nickname").asString()).isEqualTo(TestFixture.NICKNAME);
         assertThat(item.get("commentCount").asLong()).isZero();
     }
@@ -192,7 +191,7 @@ class PostApiTest extends IntegrationTest {
 
         ResponseEntity<JsonNode> response = testRestTemplate.getForEntity("/api/posts?page=0&size=50", JsonNode.class);
 
-        assertThat(titlesOf(response.getBody().get("data").get("content")))
+        assertThat(TestFixture.valuesOf(response.getBody().get("data").get("content"), "title"))
                 .doesNotContain("목록에서 사라질 글");
     }
 
@@ -212,23 +211,6 @@ class PostApiTest extends IntegrationTest {
 
         return testRestTemplate.exchange("/api/posts/" + postId, HttpMethod.DELETE,
                 new HttpEntity<>(headers), JsonNode.class);
-    }
-
-    private List<String> titlesOf(JsonNode content) {
-        List<String> titles = new ArrayList<>();
-        for (int i = 0; i < content.size(); i++) {
-            titles.add(content.get(i).get("title").asString());
-        }
-        return titles;
-    }
-
-    private JsonNode itemByTitle(JsonNode content, String title) {
-        for (int i = 0; i < content.size(); i++) {
-            if (title.equals(content.get(i).get("title").asString())) {
-                return content.get(i);
-            }
-        }
-        throw new AssertionError("목록에 없는 제목: " + title);
     }
 
     private ResponseEntity<JsonNode> createPost(String token, String title) {

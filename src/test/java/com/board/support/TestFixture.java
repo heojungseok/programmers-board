@@ -8,6 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import tools.jackson.databind.JsonNode;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public final class TestFixture {
@@ -36,6 +38,23 @@ public final class TestFixture {
                 JsonNode.class);
 
         return response.getBody().get("data").get("id").asLong();
+    }
+
+    public static List<String> valuesOf(JsonNode array, String field) {
+        List<String> values = new ArrayList<>();
+        for (int i = 0; i < array.size(); i++) {
+            values.add(array.get(i).get(field).asString());
+        }
+        return values;
+    }
+
+    public static JsonNode itemBy(JsonNode array, String field, String value) {
+        for (int i = 0; i < array.size(); i++) {
+            if (value.equals(array.get(i).get(field).asString())) {
+                return array.get(i);
+            }
+        }
+        throw new AssertionError(field + "=" + value + " 항목이 목록에 없습니다");
     }
 
     public static HttpHeaders jsonHeaders(String token) {

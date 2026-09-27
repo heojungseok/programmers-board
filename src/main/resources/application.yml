@@ -22,6 +22,8 @@ spring:
 
 server:
   port: 8890
+  error:
+    include-stacktrace: never
 
 logging:
   level:

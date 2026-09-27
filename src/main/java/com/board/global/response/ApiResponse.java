@@ -1,6 +1,7 @@
 package com.board.global.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -9,6 +10,7 @@ import java.util.List;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @JsonInclude(NON_NULL)
+@JsonPropertyOrder({"code", "message", "data", "errors"})
 @Getter
 public class ApiResponse<T> {
     private final String code;
@@ -27,16 +29,12 @@ public class ApiResponse<T> {
         this(code, message, data, null);
     }
 
-    public ApiResponse(String code, String message) {
-        this(code, message, null);
-    }
-
     public static <T> ApiResponse<T> success(String code, String message, T data) {
         return new ApiResponse<>(code, message, data);
     }
 
     public static <T> ApiResponse<T> fail(String code, String message) {
-        return new ApiResponse<>(code, message);
+        return new ApiResponse<>(code, message, null);
     }
 
     public static <T> ApiResponse<T> fail(String code, String message, List<ValidationError> errors) {

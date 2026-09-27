@@ -8,6 +8,7 @@ import com.board.member.Member;
 import com.board.member.MemberRepository;
 import com.board.post.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +44,9 @@ public class PostService {
     }
 
     public PageResponse<PostListItemResponse> list(Pageable pageable) {
-        return PageResponse.from(postRepository.findList(pageable));
+        Pageable unsorted = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+
+        return PageResponse.from(postRepository.findList(unsorted));
     }
 
     @Transactional
