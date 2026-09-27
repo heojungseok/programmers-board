@@ -2,12 +2,15 @@ package com.board.post;
 
 import com.board.global.exception.BusinessException;
 import com.board.global.exception.ErrorCode;
+import com.board.global.response.PageResponse;
 import com.board.member.Member;
 import com.board.member.MemberRepository;
-import com.board.post.dto.PostDetailResponse;
 import com.board.post.dto.PostCreateRequest;
+import com.board.post.dto.PostDetailResponse;
+import com.board.post.dto.PostListItemResponse;
 import com.board.post.dto.PostResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,5 +39,9 @@ public class PostService {
         return PostResponse.from(
                 postRepository.save(new Post(request.title(), request.content(), author))
         );
+    }
+
+    public PageResponse<PostListItemResponse> list(Pageable pageable) {
+        return PageResponse.from(postRepository.findList(pageable));
     }
 }

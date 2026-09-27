@@ -1,11 +1,14 @@
 package com.board.post;
 
 import com.board.global.response.ApiResponse;
+import com.board.global.response.PageResponse;
 import com.board.post.dto.PostDetailResponse;
 import com.board.post.dto.PostCreateRequest;
+import com.board.post.dto.PostListItemResponse;
 import com.board.post.dto.PostResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -36,5 +39,10 @@ public class PostController {
                 .body(
                         ApiResponse.success("SUCCESS", "글 생성 완료", response)
                 );
+    }
+
+    @GetMapping
+    public ApiResponse<PageResponse<PostListItemResponse>> list(Pageable pageable) {
+        return ApiResponse.success("SUCCESS", "목록 조회", postService.list(pageable));
     }
 }
