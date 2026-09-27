@@ -41,7 +41,7 @@ public class PostController {
 
     @GetMapping
     public ApiResponse<PageResponse<PostListItemResponse>> list(Pageable pageable) {
-        return ApiResponse.success("SUCCESS", "목록 조회", postService.list(pageable));
+        return ApiResponse.success("SUCCESS", "목록 조회 완료", postService.list(pageable));
     }
 
     @PutMapping("/{postId}")

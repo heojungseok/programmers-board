@@ -89,7 +89,7 @@ class PostApiTest extends IntegrationTest {
 
         JsonNode data = response.getBody().get("data");
         assertThat(data.get("title").asString()).isEqualTo("제목");
-        assertThat(data.get("authorNickname").asString()).isEqualTo(TestFixture.NICKNAME);
+        assertThat(data.get("nickname").asString()).isEqualTo(TestFixture.NICKNAME);
     }
 
     @Test

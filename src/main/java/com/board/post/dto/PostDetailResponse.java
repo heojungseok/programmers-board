@@ -11,7 +11,7 @@ public class PostDetailResponse {
     private Long id;
     private String title;
     private String content;
-    private String authorNickname;
+    private String nickname;
 
     public static PostDetailResponse from(Post post) {
         return new PostDetailResponse(
