@@ -37,4 +37,18 @@ public class Post extends BaseTimeEntity {
         this.content = content;
         this.author = author;
     }
+
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
+
+    }
+
+    public void softDelete(Instant now) {
+        this.deletedAt = now;
+    }
+
+    public boolean isAuthor(Long memberId) {
+        return author.getId().equals(memberId);
+    }
 }

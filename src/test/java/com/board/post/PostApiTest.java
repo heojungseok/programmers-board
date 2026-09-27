@@ -138,6 +138,82 @@ class PostApiTest extends IntegrationTest {
         assertThat(statistics.getPrepareStatementCount() - before).isLessThanOrEqualTo(2);
     }
 
+    @Test
+    void 작성자는_자기_글을_수정한다() {
+        String token = TestFixture.signUpAndLogin(testRestTemplate, "editor@board.com");
+        long postId = createPost(token, "수정 전 제목").getBody().get("data").get("id").asLong();
+
+        ResponseEntity<JsonNode> response = updatePost(token, postId, "수정 후 제목");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        JsonNode detail = testRestTemplate.getForEntity("/api/posts/" + postId, JsonNode.class).getBody();
+        assertThat(detail.get("data").get("title").asString()).isEqualTo("수정 후 제목");
+    }
+
+    @Test
+    void 남의_글을_수정하면_403() {
+        String ownerToken = TestFixture.signUpAndLogin(testRestTemplate, "owner@board.com");
+        String otherToken = TestFixture.signUpAndLogin(testRestTemplate, "other@board.com");
+        long postId = createPost(ownerToken, "주인 있는 글").getBody().get("data").get("id").asLong();
+
+        ResponseEntity<JsonNode> response = updatePost(otherToken, postId, "몰래 수정");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getBody().get("code").asString()).isEqualTo("ACCESS_DENIED");
+    }
+
+    @Test
+    void 없는_글을_수정하면_404() {
+        String token = TestFixture.signUpAndLogin(testRestTemplate, "ghost@board.com");
+
+        ResponseEntity<JsonNode> response = updatePost(token, 999999L, "없는 글");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody().get("code").asString()).isEqualTo("POST_NOT_FOUND");
+    }
+
+    @Test
+    void 삭제한_글은_조회도_재삭제도_404() {
+        String token = TestFixture.signUpAndLogin(testRestTemplate, "remover@board.com");
+        long postId = createPost(token, "지울 글").getBody().get("data").get("id").asLong();
+
+        assertThat(deletePost(token, postId).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(testRestTemplate.getForEntity("/api/posts/" + postId, JsonNode.class).getStatusCode())
+                .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(deletePost(token, postId).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void 삭제된_글은_목록에서도_빠진다() {
+        String token = TestFixture.signUpAndLogin(testRestTemplate, "hidden@board.com");
+        long postId = createPost(token, "목록에서 사라질 글").getBody().get("data").get("id").asLong();
+        deletePost(token, postId);
+
+        ResponseEntity<JsonNode> response = testRestTemplate.getForEntity("/api/posts?page=0&size=50", JsonNode.class);
+
+        assertThat(titlesOf(response.getBody().get("data").get("content")))
+                .doesNotContain("목록에서 사라질 글");
+    }
+
+    private ResponseEntity<JsonNode> updatePost(String token, long postId, String title) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+
+        return testRestTemplate.exchange("/api/posts/" + postId, HttpMethod.PUT,
+                new HttpEntity<>(Map.of("title", title, "content", "수정된 본문"), headers),
+                JsonNode.class);
+    }
+
+    private ResponseEntity<JsonNode> deletePost(String token, long postId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+
+        return testRestTemplate.exchange("/api/posts/" + postId, HttpMethod.DELETE,
+                new HttpEntity<>(headers), JsonNode.class);
+    }
+
     private List<String> titlesOf(JsonNode content) {
         List<String> titles = new ArrayList<>();
         for (int i = 0; i < content.size(); i++) {
