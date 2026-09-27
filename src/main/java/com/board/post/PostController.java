@@ -1,12 +1,16 @@
 package com.board.post;
 
 import com.board.global.response.ApiResponse;
+import com.board.post.dto.PostDetailResponse;
+import com.board.post.dto.PostCreateRequest;
 import com.board.post.dto.PostResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -16,8 +20,21 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping("/{postId}")
-    public ApiResponse<PostResponse> detail(@PathVariable Long postId) {
+    public ApiResponse<PostDetailResponse> detail(@PathVariable Long postId) {
 
         return ApiResponse.success("SUCCESS", "상세 조회 완료", postService.detail(postId));
+    }
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<PostResponse>> create(
+            @AuthenticationPrincipal Long memberId,
+            @Valid @RequestBody PostCreateRequest request) {
+
+        PostResponse response = postService.create(memberId, request);
+        return ResponseEntity
+                .created(URI.create("/api/posts/" + response.getId()))
+                .body(
+                        ApiResponse.success("SUCCESS", "글 생성 완료", response)
+                );
     }
 }
