@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "글을 찾을 수 없습니다."),
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력이 올바르지 않습니다."),
     EMAIL_DUPLICATED(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
     LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다."),

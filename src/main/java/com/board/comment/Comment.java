@@ -20,6 +20,7 @@ public class Comment extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false, columnDefinition = "text")
     private String content;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
@@ -33,5 +34,17 @@ public class Comment extends BaseTimeEntity {
         this.content = content;
         this.post = post;
         this.author = author;
+    }
+
+    public void update(String content) {
+        this.content = content;
+    }
+
+    public void softDelete(Instant now) {
+        this.deletedAt = now;
+    }
+
+    public boolean isAuthor(Long memberId) {
+        return author.getId().equals(memberId);
     }
 }

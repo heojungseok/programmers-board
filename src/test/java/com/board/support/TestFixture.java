@@ -1,6 +1,10 @@
 package com.board.support;
 
 import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import tools.jackson.databind.JsonNode;
 
@@ -24,5 +28,25 @@ public final class TestFixture {
                 JsonNode.class);
 
         return login.getBody().get("data").get("accessToken").asString();
+    }
+
+    public static long createPost(TestRestTemplate testRestTemplate, String token, String title) {
+        ResponseEntity<JsonNode> response = testRestTemplate.exchange("/api/posts", HttpMethod.POST,
+                new HttpEntity<>(Map.of("title", title, "content", "본문"), jsonHeaders(token)),
+                JsonNode.class);
+
+        return response.getBody().get("data").get("id").asLong();
+    }
+
+    public static HttpHeaders jsonHeaders(String token) {
+        HttpHeaders headers = bearerHeaders(token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return headers;
+    }
+
+    public static HttpHeaders bearerHeaders(String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        return headers;
     }
 }
