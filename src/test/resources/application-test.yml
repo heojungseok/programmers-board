@@ -24,5 +24,5 @@ logging:
     org.springframework.transaction.interceptor: TRACE
 
 jwt:
-  secret: xTi+80EJLGn+c2HGnxNKFLVmFTCIH0Qa6HOuoMYGEus=
+  secret: S3FS+wgnmS72STqxh1EL/AL/aa3Hc753oZDO2cgVpfw=
   expiration: 3600000

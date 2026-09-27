@@ -53,9 +53,43 @@ class AuthApiTest extends IntegrationTest {
         assertThat(response.getBody().get("code").asString()).isEqualTo("EMAIL_DUPLICATED");
     }
 
+    @Test
+    void 로그인하면_토큰을_받는다() {
+        signUp("login@board.com", "password123");
+
+        ResponseEntity<JsonNode> response = login("login@board.com", "password123");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody().get("data").get("accessToken").asString()).isNotBlank();
+    }
+
+    @Test
+    void 비밀번호가_틀리면_401() {
+        signUp("wrongpw@board.com", "password123");
+
+        ResponseEntity<JsonNode> response = login("wrongpw@board.com", "wrong-password");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(response.getBody().get("code").asString()).isEqualTo("LOGIN_FAILED");
+    }
+
+    @Test
+    void 없는_이메일로_로그인하면_같은_401() {
+        ResponseEntity<JsonNode> response = login("nobody@board.com", "password123");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(response.getBody().get("code").asString()).isEqualTo("LOGIN_FAILED");
+    }
+
     private ResponseEntity<JsonNode> signUp(String email, String password) {
         return testRestTemplate.postForEntity("/api/members",
                 Map.of("email", email, "password", password, "nickname", "정석"),
+                JsonNode.class);
+    }
+
+    private ResponseEntity<JsonNode> login(String email, String password) {
+        return testRestTemplate.postForEntity("/api/auth/login",
+                Map.of("email", email, "password", password),
                 JsonNode.class);
     }
 }
