@@ -1,5 +1,7 @@
 package com.board.global.security;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -36,5 +38,15 @@ public class JwtTokenProvider {
         return jwtBuilder
                 .signWith(key, Jwts.SIG.HS256)
                 .compact();
+    }
+
+    public long extractMemberId(String token) {
+        Jws<Claims> claims = Jwts
+                .parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token);
+
+        return Long.parseLong(claims.getPayload().getSubject());
     }
 }
