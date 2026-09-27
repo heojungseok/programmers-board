@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
@@ -29,7 +29,7 @@ public class Post {
     @Column(nullable = false, columnDefinition = "text")
     private String content;
 
-    private LocalDateTime deletedAt;
+    private Instant deletedAt;
 
     public Post(String title, String content) {
         this.title = title;

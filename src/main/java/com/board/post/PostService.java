@@ -16,10 +16,10 @@ public class PostService {
 
     public PostResponse detail(Long postId) {
 
-        return PostResponse.from(findPost(postId));
+        return PostResponse.from(getPost(postId));
     }
 
-    private Post findPost(Long postId) {
+    private Post getPost(Long postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
     }
